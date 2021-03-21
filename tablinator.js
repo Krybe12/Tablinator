@@ -44,6 +44,7 @@ class Tablinator {
                     sortChange[1] = "DESC";
                 }
                 this.sortArr = sortChange;
+                this.currentPage = 1;
                 sortChange = [];
             }
             this.refresh();
