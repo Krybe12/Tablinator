@@ -1,7 +1,6 @@
 <?php
 require 'conn.php';
 $errors = [];
-//$arrows = ["⬍", "▲", "▼"];
 if (isset($_GET["table"]) and isset($_GET["col"])){
     //default values
     $orderBy = "";
@@ -39,7 +38,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $ascdesc, $numPerPage, $cu
     global $conn;
     global $maxPages;
     global $resultCount;
-    global $arrows;
+
     if (strlen($orderBy) > 0) {
         if (in_array($orderBy, $listOfCol)) {
             if (strtoupper($ascdesc) == "ASC" or strtoupper($ascdesc) == "DESC"){
@@ -47,7 +46,24 @@ function tablinator($tableName, $listOfCol, $orderBy, $ascdesc, $numPerPage, $cu
             }
         }
     }
-
+    $selectTen = "";
+    $selectFifteen = "";
+    $selectTwenty = "";
+    $selectTwentyFive = "";
+    switch(intval($numPerPage)){
+        case 10:
+            $selectTen = "selected";
+            break;
+        case 15:
+            $selectFifteen = "selected";
+            break;
+        case 20:
+            $selectTwenty = "selected";
+            break;
+        case 25:
+            $selectTwentyFive = "selected";
+            break;
+    }
     $limitStart = $currentPage * $numPerPage - $numPerPage;
     $limit = "LIMIT " . $limitStart . ", ". $numPerPage;
     //entities counting
@@ -65,7 +81,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $ascdesc, $numPerPage, $cu
     echo "<div class='wrapper'>";
 
     echo "<div class='is-flex is-justify-content-space-around'>";
-    echo "<h5>per page xy</h5>";
+    echo "<div><label for='tablinator-$tableName-val'>Number of entries: </label><select id='tablinator-$tableName-val'><option value='10' $selectTen>10</option><option value='15' $selectFifteen>15</option><option value='20' $selectTwenty>20</option><option value='25' $selectTwentyFive>25</option></select></div>";
     echo "<h5>searchbar.exe</h5>";
     echo "</div>";
    

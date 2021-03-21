@@ -1,5 +1,6 @@
 var pageChange = 0;
 var sortChange = [];
+var perPageChange = 0;
 class Tablinator {
     constructor(tableName, columnsArr, divID){
         this.tableName = tableName;
@@ -7,7 +8,7 @@ class Tablinator {
         this.divID = divID;
         this.sortArr = [];
         this.currentPage = 1;
-        this.perPage = 6;
+        this.perPage = 10;
         this.refresh();
     }
     refresh(){
@@ -15,12 +16,23 @@ class Tablinator {
     }
     createListeners(){
         $(`.tablinator-${this.tableName}-button`).click(function() {
-            this.currentPage = $(this).text();
-            pageChange = this.currentPage;
+            pageChange = $(this).text();
         });
         $(`.tablinator-${this.tableName}-column`).click(function() {
             sortChange = [$(this).text(), "ASC"];
         });
+        $(`#tablinator-${this.tableName}-val`).change(function() {
+            perPageChange = $(this).val();
+        });
+        $(`#tablinator-${this.tableName}-val`).change(() => {
+            if (perPageChange > 0){
+                this.perPage = perPageChange;
+                this.currentPage = 1
+                perPageChange = 0;
+                this.refresh();
+            }
+        });
+        
         $(`.tablinator`).click(() => {
             if (pageChange > 0){
                 this.currentPage = pageChange;
