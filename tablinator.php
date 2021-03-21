@@ -1,6 +1,7 @@
 <?php
 require 'conn.php';
 $errors = [];
+//$arrows = ["⬍", "▲", "▼"];
 if (isset($_GET["table"]) and isset($_GET["col"])){
     //default values
     $orderBy = "";
@@ -38,6 +39,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $ascdesc, $numPerPage, $cu
     global $conn;
     global $maxPages;
     global $resultCount;
+    global $arrows;
     if (strlen($orderBy) > 0) {
         if (in_array($orderBy, $listOfCol)) {
             if (strtoupper($ascdesc) == "ASC" or strtoupper($ascdesc) == "DESC"){
@@ -73,7 +75,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $ascdesc, $numPerPage, $cu
         echo "<tr>";
         //tablinator-$tableName-column tablinator
         for ($i = 0; $i < count($listOfCol); $i++) {
-            echo "<th class='tablinator-$tableName-column tablinator'>";
+            echo "<th class='tablinator-$tableName-column tablinator' style='cursor: pointer;'>";
             echo $listOfCol[$i];
             echo "</th>"; 
         }
