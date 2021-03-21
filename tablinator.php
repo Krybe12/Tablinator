@@ -128,24 +128,3 @@ function tablinator($tableName, $listOfCol, $orderBy, $ascdesc, $numPerPage, $cu
     echo "</div>";
 }
 ?>
-
-
-
-
-
-
-
-<?php
-//tablinator("sales", ["product_name", "price", "amount"], "price", "asc", 5, 1, ["table is-striped is-fullwidth has-text-centered"]);
-/*
-tablinator(
-    tableName           -required TYPE STR
-    arr of columns      -required TYPE ARR
-    sort by column name -optional DEFAULT "" TYPE STR
-    asc / desc          -optional DEFAULT "" TYPE STR
-    numPerPage          -optional DEFAULT 100 TYPE INT
-    currentPage         -optional DEFAULT 1 TYPE INT
-    arr of tbl classes  -optional DEFAULT [] TYPE ARR
-)
-*/
-?>
