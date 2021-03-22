@@ -143,7 +143,11 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
 
         echo "<div class=''>";
             for ($i = 1; $i <= $maxPages; $i++) {
-                echo "<button class='button is-small m-1 tablinator-$tableName-button tablinator'>$i</button>";
+                $isSelectedBtn = "";
+                if ($i == $currentPage){
+                    $isSelectedBtn = "is-success is-selected";
+                }
+                echo "<button class='button is-small m-1 $isSelectedBtn tablinator-$tableName-button tablinator'>$i</button>";
             }
         echo "</div>";
 
