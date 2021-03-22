@@ -2,6 +2,17 @@ var pageChange = 0;
 var sortChange = [];
 var perPageChange = 0;
 var searchBar = "";
+function throttle(f, delay){ // yoinked from https://stackoverflow.com/questions/4364729/jquery-run-code-2-seconds-after-last-keypress
+    var timer = null;
+    return function(){
+        var context = this, args = arguments;
+        clearTimeout(timer);
+        timer = window.setTimeout(function(){
+            f.apply(context, args);
+        },
+        delay || 200);
+    };
+}
 class Tablinator {
     constructor(tableName, columnsArr, divID){
         this.tableName = tableName;
@@ -20,11 +31,15 @@ class Tablinator {
         } catch(err) {
             //console.error(err)
         }
-        $(`#${this.divID}`).load(`tablinator.php?table=${this.tableName}&col=${this.columnsArr}&currentPage=${this.currentPage}&perPage=${this.perPage}&sort=${this.sortArr}&search=${this.search}`, () => {this.createListeners(); if(this.search.length > 0){this.inputSelector()}});
+        $(`#${this.divID}`).load(`tablinator/tablinator.php?table=${this.tableName}&col=${this.columnsArr}&currentPage=${this.currentPage}&perPage=${this.perPage}&sort=${this.sortArr}&search=${this.search}`, () => {this.createListeners(); if(this.search.length > 0){this.inputSelector()}});
     }
     inputSelector(){
         if ($(`#tablinator-${this.tableName}-input`).hasClass("focus")){
             var searchInput = $(`#tablinator-${this.tableName}-input`);
+            if (searchBar.length > this.search[1]){
+                searchInput.val() = searchBar;
+                console.log("proc")
+            }
             var strLength = searchInput.val().length * 2;
             searchInput.focus();
             searchInput[0].setSelectionRange(strLength, strLength);
@@ -40,18 +55,20 @@ class Tablinator {
         $(`#tablinator-${this.tableName}-val`).change(function() {
             perPageChange = $(this).val();
         });
-/*         $(`#tablinator-${this.tableName}-input`).keyup(function() {
+        $(`#tablinator-${this.tableName}-input`).keyup(function() {
             searchBar = $(this).val();
-        }); */
-
-        $(`#tablinator-${this.tableName}-input`).keyup(() => {
+        });
+        $(`#tablinator-${this.tableName}-input`).keyup(throttle(() => {
+            this.refresh();
+        }));
+        //$(`#tablinator-${this.tableName}-input`).keyup(() => {
 /*             if (searchBar.length > 0){
                 this.search[1] = searchBar;
                 searchBar = "";
                 
             } */
-            this.refresh();
-        });
+            //this.refresh();
+        //});
         $(`#tablinator-${this.tableName}-val`).change(() => {
             if (perPageChange > 0){
                 this.perPage = perPageChange;
