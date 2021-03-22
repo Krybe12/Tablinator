@@ -10,7 +10,7 @@ function throttle(f, delay){ // yoinked from https://stackoverflow.com/questions
         timer = window.setTimeout(function(){
             f.apply(context, args);
         },
-        delay || 200);
+        delay || 190);
     };
 }
 class Tablinator {
@@ -36,10 +36,6 @@ class Tablinator {
     inputSelector(){
         if ($(`#tablinator-${this.tableName}-input`).hasClass("focus")){
             var searchInput = $(`#tablinator-${this.tableName}-input`);
-            if (searchBar.length > this.search[1]){
-                searchInput.val() = searchBar;
-                console.log("proc")
-            }
             var strLength = searchInput.val().length * 2;
             searchInput.focus();
             searchInput[0].setSelectionRange(strLength, strLength);
@@ -69,6 +65,10 @@ class Tablinator {
             } */
             //this.refresh();
         //});
+        $(`#tablinator-${this.tableName}-input`).on('search', () => {
+            this.refresh();
+        });
+
         $(`#tablinator-${this.tableName}-val`).change(() => {
             if (perPageChange > 0){
                 this.perPage = perPageChange;
