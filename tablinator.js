@@ -1,6 +1,7 @@
 var pageChange = 0;
 var sortChange = [];
 var perPageChange = 0;
+var searchBar = "";
 class Tablinator {
     constructor(tableName, columnsArr, divID){
         this.tableName = tableName;
@@ -9,10 +10,25 @@ class Tablinator {
         this.sortArr = [];
         this.currentPage = 1;
         this.perPage = 10;
+        this.search = [];
         this.refresh();
     }
     refresh(){
-        $(`#${this.divID}`).load(`tablinator.php?table=${this.tableName}&col=${this.columnsArr}&currentPage=${this.currentPage}&perPage=${this.perPage}&sort=${this.sortArr}`, () => {this.createListeners()});
+        try {
+            this.search[1] = $(`#tablinator-${this.tableName}-input`).val();
+            this.search[0] = $(`#tablinator-${this.tableName}-input`).is(":focus");
+        } catch(err) {
+            //console.error(err)
+        }
+        $(`#${this.divID}`).load(`tablinator.php?table=${this.tableName}&col=${this.columnsArr}&currentPage=${this.currentPage}&perPage=${this.perPage}&sort=${this.sortArr}&search=${this.search}`, () => {this.createListeners(); if(this.search.length > 0){this.inputSelector()}});
+    }
+    inputSelector(){
+        if ($(`#tablinator-${this.tableName}-input`).hasClass("focus")){
+            var searchInput = $(`#tablinator-${this.tableName}-input`);
+            var strLength = searchInput.val().length * 2;
+            searchInput.focus();
+            searchInput[0].setSelectionRange(strLength, strLength);
+        }
     }
     createListeners(){
         $(`.tablinator-${this.tableName}-button`).click(function() {
@@ -23,6 +39,18 @@ class Tablinator {
         });
         $(`#tablinator-${this.tableName}-val`).change(function() {
             perPageChange = $(this).val();
+        });
+/*         $(`#tablinator-${this.tableName}-input`).keyup(function() {
+            searchBar = $(this).val();
+        }); */
+
+        $(`#tablinator-${this.tableName}-input`).keyup(() => {
+/*             if (searchBar.length > 0){
+                this.search[1] = searchBar;
+                searchBar = "";
+                
+            } */
+            this.refresh();
         });
         $(`#tablinator-${this.tableName}-val`).change(() => {
             if (perPageChange > 0){

@@ -8,19 +8,33 @@ if (isset($_GET["table"]) and isset($_GET["col"])){
     $numPerPage = 10; //js variables have prio
     $currentPage = 1;
     $tableClass = ["table", "is-fullwidth", "has-text-centered"];
+    $whereLike = "";
     //over
     $tableName = $_GET["table"];
     $listOfCol = explode(",", $_GET["col"]);
-
+    if(isset($_GET["search"]) and strlen($_GET["search"]) > 0){
+        $search = $_GET["search"];
+        $searchArr = explode(",", $search);
+        if ($searchArr[0] == "true"){
+            $autofocus = "focus";
+        } else {
+            $autofocus = "";
+        } 
+        $searchVal = $searchArr[1];
+    }
+    if (strlen($searchVal) > 0){
+        $searchStr = $searchVal . "%";
+        $whereLike = "";
+        for ($i = 0; $i < count($listOfCol); $i++){
+            $whereLike = $whereLike . " " . $listOfCol[$i] . " " . "LIKE " .  "'" . $searchStr . "'" . " OR";
+        }
+        $whereLike = "WHERE " . $whereLike;
+        $whereLike = substr($whereLike, 0, -3);
+    }
     if(isset($_GET["perPage"]) and isset($_GET["currentPage"])){
         if (is_numeric($_GET["perPage"]) and is_numeric($_GET["currentPage"])){
             $numPerPage = $_GET["perPage"];
             $currentPage = $_GET["currentPage"];
-
-            $sql = "SELECT COUNT(*) AS COUNT FROM $tableName";
-            $result = $conn->query($sql);
-            $resultCount = $result->fetch_assoc()["COUNT"];
-            $maxPages = ceil(intval($resultCount) / $numPerPage);
         } else {
             array_push($errors, "wrong paging format");
         }
@@ -39,13 +53,19 @@ if (isset($_GET["table"]) and isset($_GET["col"])){
             array_push($errors, "wrong sorting format");
         }
     }
-    tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass);
+    tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike);
 }
 
-function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass){
+function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike){
     global $conn;
-    global $maxPages;
     global $resultCount;
+    global $searchVal;
+    global $autofocus;
+
+    $sql = "SELECT COUNT(*) AS COUNT FROM $tableName $whereLike";
+    $result = $conn->query($sql);
+    $resultCount = $result->fetch_assoc()["COUNT"];
+    $maxPages = ceil(intval($resultCount) / $numPerPage);
 
     $selectTen = "";
     $selectFifteen = "";
@@ -68,22 +88,23 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
     $limitStart = $currentPage * $numPerPage - $numPerPage;
     $limit = "LIMIT " . $limitStart . ", ". $numPerPage;
     //entities counting
-        $entitiesStart = $limitStart + 1;
-        $entitiesEnd = $entitiesStart + $numPerPage - 1;
-        if ($entitiesEnd > $resultCount){
-            $entitiesEnd = $resultCount;
-        }
-    //over
+    $entitiesStart = $limitStart + 1;
+    $entitiesEnd = $entitiesStart + $numPerPage - 1;
+    if ($entitiesEnd > $resultCount){
+        $entitiesEnd = $resultCount;
+    }
+
     $columns = implode(", ", $listOfCol);
     $classes = implode(" ", $tableClass);
 
-    $sql = "SELECT $columns FROM $tableName $orderBy $limit;";
+    $sql = "SELECT $columns FROM $tableName $whereLike $orderBy $limit;";
+    echo $sql;
     $result = $conn->query($sql);
     echo "<div class='wrapper'>";
 
     echo "<div class='is-flex is-justify-content-space-around'>";
     echo "<div><label for='tablinator-$tableName-val'>Number of entries: </label><select id='tablinator-$tableName-val'><option value='10' $selectTen>10</option><option value='15' $selectFifteen>15</option><option value='20' $selectTwenty>20</option><option value='25' $selectTwentyFive>25</option></select></div>";
-    echo "<h5>searchbar.exe</h5>";
+    echo "<div class='is-flex is-align-items-center'><label for='tablinator-$tableName-input'>Search: </label><input class='input $autofocus' value='$searchVal' type='search' id='tablinator-$tableName-input' autocomplete='off'></div>";
     echo "</div>";
    
     if ($result->num_rows > 0) {
