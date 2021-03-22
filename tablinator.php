@@ -5,7 +5,7 @@ if (isset($_GET["table"]) and isset($_GET["col"])){
     //default values
     $orderBy = "";
     $ascdesc = "";
-    $numPerPage = 10; //js variables are used for pages
+    $numPerPage = 10; //js variables have prio
     $currentPage = 1;
     $tableClass = ["table", "is-fullwidth", "has-text-centered"];
     //over
@@ -30,22 +30,23 @@ if (isset($_GET["table"]) and isset($_GET["col"])){
         $sortArr = explode(",", $sortStr);
         $orderBy = $sortArr[0];
         $ascdesc = $sortArr[1];
-    }
-    tablinator($tableName, $listOfCol, $orderBy, $ascdesc, $numPerPage, $currentPage, $tableClass);
-}
-
-function tablinator($tableName, $listOfCol, $orderBy, $ascdesc, $numPerPage, $currentPage, $tableClass){
-    global $conn;
-    global $maxPages;
-    global $resultCount;
-
-    if (strlen($orderBy) > 0) {
         if (in_array($orderBy, $listOfCol)) {
             if (strtoupper($ascdesc) == "ASC" or strtoupper($ascdesc) == "DESC"){
                 $orderBy = "ORDER BY $orderBy $ascdesc";
             }
+        } else {
+            $orderBy = "";
+            array_push($errors, "wrong sorting format");
         }
     }
+    tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass);
+}
+
+function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass){
+    global $conn;
+    global $maxPages;
+    global $resultCount;
+
     $selectTen = "";
     $selectFifteen = "";
     $selectTwenty = "";
