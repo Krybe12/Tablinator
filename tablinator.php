@@ -54,6 +54,9 @@ if (isset($_GET["table"]) and isset($_GET["col"])){
         }
     }
     tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike);
+    if (count($errors) > 0){
+        var_dump($errors);
+    }
 }
 
 function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike){
@@ -98,7 +101,6 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
     $classes = implode(" ", $tableClass);
 
     $sql = "SELECT $columns FROM $tableName $whereLike $orderBy $limit;";
-    echo $sql;
     $result = $conn->query($sql);
     echo "<div class='wrapper'>";
 
