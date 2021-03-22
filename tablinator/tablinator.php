@@ -115,7 +115,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
         echo "<tr>";
         //tablinator-$tableName-column tablinator
         for ($i = 0; $i < count($listOfCol); $i++) {
-            echo "<th class='tablinator-$tableName-column tablinator' style='cursor: pointer;'>";
+            echo "<th class='is-unselectable is-clickable tablinator-$tableName-column tablinator'>";
             echo $listOfCol[$i];
             echo "</th>"; 
         }
