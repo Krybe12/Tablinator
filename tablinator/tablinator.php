@@ -23,7 +23,7 @@ if (isset($_GET["table"]) and isset($_GET["col"])){
         $searchVal = $searchArr[1];
     }
     if (strlen($searchVal) > 0){
-        $searchStr = $searchVal . "%";
+        $searchStr = "%" .$searchVal . "%";
         $whereLike = "";
         for ($i = 0; $i < count($listOfCol); $i++){
             $whereLike = $whereLike . " " . $listOfCol[$i] . " " . "LIKE " .  "'" . $searchStr . "'" . " OR";
