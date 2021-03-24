@@ -40,6 +40,7 @@ class Tablinator {
     createListeners(){
         $(`.tablinator-${this.tableName}-button`).click((e) => {
             this.currentPage = e.target.innerText;
+            this.refresh();
         });
 
         $(`.tablinator-${this.tableName}-val`).change((e) => {
@@ -57,16 +58,15 @@ class Tablinator {
             this.sortArr = this.sortChange;
             this.currentPage = 1;
             this.sortChange = [];
+            this.refresh();
         });
 
         $(`#tablinator-${this.tableName}-input`).keyup(throttle(() => {
+            this.currentPage = 1;
             this.refresh();
         }));
-        $(`#tablinator-${this.tableName}-input`).on('search', () => {
-            this.refresh();
-        });
-        
-        $(`.tablinator-${this.tableName}`).click(() => {
+        $(`#tablinator-${this.tableName}-input`).on('search', () => { //triggers on clearing search bar
+            this.currentPage = 1;
             this.refresh();
         });
     }
