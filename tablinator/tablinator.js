@@ -30,12 +30,11 @@ class Tablinator {
         $(`#${this.divID}`).load(`tablinator/tablinator.php?table=${this.tableName}&col=${this.columnsArr}&currentPage=${this.currentPage}&perPage=${this.perPage}&sort=${this.sortArr}&search=${this.search}`, () => {this.createListeners(); this.inputSelector()});
     }
     inputSelector(){
-        if ($(`#tablinator-${this.tableName}-input`).hasClass("focus")){
-            var searchInput = $(`#tablinator-${this.tableName}-input`);
-            var strLength = searchInput.val().length * 2;
-            searchInput.focus();
-            searchInput[0].setSelectionRange(strLength, strLength);
-        }
+        if (!$(`#tablinator-${this.tableName}-input`).hasClass("focus")) return;
+        var searchInput = $(`#tablinator-${this.tableName}-input`);
+        var strLength = searchInput.val().length * 2;
+        searchInput.focus();
+        searchInput[0].setSelectionRange(strLength, strLength);
     }
     createListeners(){
         $(`.tablinator-${this.tableName}-button`).click((e) => {
