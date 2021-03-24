@@ -1,7 +1,3 @@
-var pageChange = 0;
-var sortChange = [];
-var perPageChange = 0;
-var searchBar = "";
 function throttle(f, delay){ // yoinked from https://stackoverflow.com/questions/4364729/jquery-run-code-2-seconds-after-last-keypress
     var timer = null;
     return function(){
@@ -19,6 +15,7 @@ class Tablinator {
         this.columnsArr = columnsArr;
         this.divID = divID;
         this.sortArr = [];
+        this.sortChange = [];
         this.currentPage = 1;
         this.perPage = 10;
         this.search = [];
@@ -29,9 +26,8 @@ class Tablinator {
             this.search[1] = $(`#tablinator-${this.tableName}-input`).val();
             this.search[0] = $(`#tablinator-${this.tableName}-input`).is(":focus");
         } catch(err) {
-            //console.error(err)
         }
-        $(`#${this.divID}`).load(`tablinator/tablinator.php?table=${this.tableName}&col=${this.columnsArr}&currentPage=${this.currentPage}&perPage=${this.perPage}&sort=${this.sortArr}&search=${this.search}`, () => {this.createListeners(); if(this.search.length > 0){this.inputSelector()}});
+        $(`#${this.divID}`).load(`tablinator/tablinator.php?table=${this.tableName}&col=${this.columnsArr}&currentPage=${this.currentPage}&perPage=${this.perPage}&sort=${this.sortArr}&search=${this.search}`, () => {this.createListeners(); this.inputSelector()});
     }
     inputSelector(){
         if ($(`#tablinator-${this.tableName}-input`).hasClass("focus")){
@@ -42,56 +38,35 @@ class Tablinator {
         }
     }
     createListeners(){
-        $(`.tablinator-${this.tableName}-button`).click(function() {
-            pageChange = $(this).text();
+        $(`.tablinator-${this.tableName}-button`).click((e) => {
+            this.currentPage = e.target.innerText;
         });
-        $(`.tablinator-${this.tableName}-column`).click(function() {
-            sortChange = [$(this).text(), "ASC"];
-        });
-        $(`#tablinator-${this.tableName}-val`).change(function() {
-            perPageChange = $(this).val();
-        });
-        $(`#tablinator-${this.tableName}-input`).keyup(function() {
-            searchBar = $(this).val();
-        });
-        $(`#tablinator-${this.tableName}-input`).keyup(throttle(() => {
-            this.refresh();
-        }));
-        //$(`#tablinator-${this.tableName}-input`).keyup(() => {
-/*             if (searchBar.length > 0){
-                this.search[1] = searchBar;
-                searchBar = "";
-                
-            } */
-            //this.refresh();
-        //});
-        $(`#tablinator-${this.tableName}-input`).on('search', () => {
+
+        $(`.tablinator-${this.tableName}-val`).change((e) => {
+            this.perPage = e.target.value;
             this.refresh();
         });
 
-        $(`#tablinator-${this.tableName}-val`).change(() => {
-            if (perPageChange > 0){
-                this.perPage = perPageChange;
-                this.currentPage = 1
-                perPageChange = 0;
-                this.refresh();
+        $(`.tablinator-${this.tableName}-column`).click((e) => {
+            this.sortChange = [e.target.innerText, "ASC"];
+            if (this.sortArr[1] == "DESC"){
+                this.sortChange[1] = "ASC";
+            } else if (this.sortArr[0] == this.sortChange[0]){
+                this.sortChange[1] = "DESC";
             }
+            this.sortArr = this.sortChange;
+            this.currentPage = 1;
+            this.sortChange = [];
+        });
+
+        $(`#tablinator-${this.tableName}-input`).keyup(throttle(() => {
+            this.refresh();
+        }));
+        $(`#tablinator-${this.tableName}-input`).on('search', () => {
+            this.refresh();
         });
         
-        $(`.tablinator`).click(() => {
-            if (pageChange > 0){
-                this.currentPage = pageChange;
-                pageChange = 0;
-            } else if (sortChange.length > 0){
-                if (this.sortArr[1] == "DESC"){
-                    sortChange[1] = "ASC";
-                } else if (this.sortArr[0] == sortChange[0]){
-                    sortChange[1] = "DESC";
-                }
-                this.sortArr = sortChange;
-                this.currentPage = 1;
-                sortChange = [];
-            }
+        $(`.tablinator-${this.tableName}`).click(() => {
             this.refresh();
         });
     }

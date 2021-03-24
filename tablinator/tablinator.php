@@ -105,8 +105,8 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
     echo "<div class='wrapper'>";
 
     echo "<div class='is-flex is-justify-content-space-around'>";
-    echo "<div><label for='tablinator-$tableName-val'>Number of entries: </label><select id='tablinator-$tableName-val'><option value='10' $selectTen>10</option><option value='15' $selectFifteen>15</option><option value='20' $selectTwenty>20</option><option value='25' $selectTwentyFive>25</option></select></div>";
-    echo "<div class='is-flex is-align-items-center'><label for='tablinator-$tableName-input'>Search: </label><input class='input $autofocus' value='$searchVal' type='search' id='tablinator-$tableName-input' autocomplete='off'></div>";
+    echo "<div><label for='tablinator-$tableName-val'>Number of entries: </label><select id='tablinator-$tableName-val' class='tablinator-$tableName-val'><option value='10' $selectTen>10</option><option value='15' $selectFifteen>15</option><option value='20' $selectTwenty>20</option><option value='25' $selectTwentyFive>25</option></select></div>";
+    echo "<div class='is-flex is-align-items-center'><label for='tablinator-$tableName-input'>Search: </label><input class='input $autofocus tablinator-$tableName-input' value='$searchVal' type='search' id='tablinator-$tableName-input' autocomplete='off'></div>";
     echo "</div>";
    
     if ($result->num_rows > 0) {
@@ -115,7 +115,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
         echo "<tr>";
         //tablinator-$tableName-column tablinator
         for ($i = 0; $i < count($listOfCol); $i++) {
-            echo "<th class='is-unselectable is-clickable tablinator-$tableName-column tablinator'>";
+            echo "<th class='is-unselectable is-clickable tablinator-$tableName-column tablinator-$tableName'>";
             echo $listOfCol[$i];
             echo "</th>"; 
         }
@@ -147,7 +147,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
                 if ($i == $currentPage){
                     $isSelectedBtn = "is-success is-selected";
                 }
-                echo "<button class='button is-small m-1 $isSelectedBtn tablinator-$tableName-button tablinator'>$i</button>";
+                echo "<button class='button is-small m-1 $isSelectedBtn tablinator-$tableName-button tablinator-$tableName'>$i</button>";
             }
         echo "</div>";
 
