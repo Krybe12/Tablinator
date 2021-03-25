@@ -1,11 +1,13 @@
 <?php
 require 'conn.php';
-$errors = [];
+
 if (!isset($_GET["table"]) or !isset($_GET["col"])) return;
+$errors = [];
+$arrows = ["⬍", "▲", "▼"];
 //default values
 $orderBy = "";
 $ascdesc = "";
-$numPerPage = 10; //js variables have prio
+$numPerPage = 10; //js variable have prio
 $currentPage = 1;
 $tableClass = ["table", "is-fullwidth", "has-text-centered"];
 $whereLike = "";
@@ -14,7 +16,7 @@ $whereLike = "";
 $tableName = $_GET["table"];
 $listOfCol = explode(",", $_GET["col"]);
 
-if(isset($_GET["search"]) and strlen($_GET["search"]) > 0){
+if(isset($_GET["search"])){
     $search = $_GET["search"];
     $searchArr = explode(",", $search);
     if ($searchArr[0] == "true"){
@@ -59,6 +61,7 @@ if(isset($_GET["sort"]) and strlen($_GET["sort"]) > 0){
 }
 
 tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike);
+
 if (count($errors) > 0){
     var_dump($errors);
 }
@@ -68,12 +71,14 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
     global $searchVal;
     global $autofocus;
 
+    //page count / result count
     $sql = "SELECT COUNT(*) AS COUNT FROM $tableName $whereLike";
     if (!validate($sql)) return;
     $result = $conn->query($sql);
     $resultCount = $result->fetch_assoc()["COUNT"];
     $maxPages = ceil(intval($resultCount) / $numPerPage);
 
+    //select current value
     $selectTen = "";
     $selectFifteen = "";
     $selectTwenty = "";
@@ -92,8 +97,11 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
             $selectTwentyFive = "selected";
             break;
     }
+
+    //limit counting
     $limitStart = $currentPage * $numPerPage - $numPerPage;
     $limit = "LIMIT " . $limitStart . ", ". $numPerPage;
+
     //entities counting
     $entitiesStart = $limitStart + 1;
     $entitiesEnd = $entitiesStart + $numPerPage - 1;
@@ -104,6 +112,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
     $columns = implode(", ", $listOfCol);
     $classes = implode(" ", $tableClass);
 
+    //main sql
     $sql = "SELECT $columns FROM $tableName $whereLike $orderBy $limit;";
     if (!validate($sql)) return;
     $result = $conn->query($sql);
@@ -118,7 +127,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
         echo "<table class='$classes'>";
         echo "<thead>";
         echo "<tr>";
-        //tablinator-$tableName-column tablinator
+
         for ($i = 0; $i < count($listOfCol); $i++) {
             echo "<th class='is-unselectable is-clickable tablinator-$tableName-column tablinator-$tableName'>";
             echo $listOfCol[$i];
