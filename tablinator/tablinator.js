@@ -6,7 +6,7 @@ function throttle(f, delay){ // yoinked from https://stackoverflow.com/questions
         timer = window.setTimeout(function(){
             f.apply(context, args);
         },
-        delay || 185);
+        delay || 200);
     };
 }
 class Tablinator {

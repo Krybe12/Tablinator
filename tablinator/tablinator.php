@@ -21,14 +21,17 @@ if(isset($_GET["search"]) and strlen($_GET["search"]) > 0){
         $autofocus = "focus";
     } else {
         $autofocus = "";
-    } 
-    $searchVal = $searchArr[1];
-    $searchStr = "%" .$searchVal . "%";
-    for ($i = 0; $i < count($listOfCol); $i++){
-        $whereLike = $whereLike . " " . $listOfCol[$i] . " " . "LIKE " .  "'" . $searchStr . "'" . " OR";
     }
-    $whereLike = "WHERE " . $whereLike;
-    $whereLike = substr($whereLike, 0, -3);
+    if(strlen($searchArr[1]) > 0 ){
+        $searchVal = $searchArr[1];
+        $searchStr = "%" .$searchVal . "%";
+        for ($i = 0; $i < count($listOfCol); $i++){
+            $whereLike = $whereLike . " " . $listOfCol[$i] . " " . "LIKE " .  "'" . $searchStr . "'" . " OR";
+        }
+        $whereLike = "WHERE " . $whereLike;
+        $whereLike = substr($whereLike, 0, -3);
+        if (!validate($whereLike)) $whereLike = "";
+    }
 }
 
 if(isset($_GET["perPage"]) and isset($_GET["currentPage"])){
@@ -40,7 +43,7 @@ if(isset($_GET["perPage"]) and isset($_GET["currentPage"])){
     }
 }
 
-if(isset($_GET["sort"]) and strlen($_GET["sort"]) > 3){
+if(isset($_GET["sort"]) and strlen($_GET["sort"]) > 0){
     $sortStr = $_GET["sort"];
     $sortArr = explode(",", $sortStr);
     $orderBy = $sortArr[0];
@@ -62,11 +65,11 @@ if (count($errors) > 0){
 
 function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike){
     global $conn;
-    global $resultCount;
     global $searchVal;
     global $autofocus;
 
     $sql = "SELECT COUNT(*) AS COUNT FROM $tableName $whereLike";
+    if (!validate($sql)) return;
     $result = $conn->query($sql);
     $resultCount = $result->fetch_assoc()["COUNT"];
     $maxPages = ceil(intval($resultCount) / $numPerPage);
@@ -102,6 +105,7 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
     $classes = implode(" ", $tableClass);
 
     $sql = "SELECT $columns FROM $tableName $whereLike $orderBy $limit;";
+    if (!validate($sql)) return;
     $result = $conn->query($sql);
     echo "<div class='wrapper'>";
 
@@ -155,5 +159,12 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
         echo "</div>";
     }
     echo "</div>";
+}
+function validate($str){
+    $listOfBadWords = ["DATABASE", "DELETE", "USE", "TRUNCATE", "DROP"];
+    for ($i = 0; $i < count($listOfBadWords); $i++){
+        if(strripos($str, $listOfBadWords[$i])) return false;
+    }
+    return true;
 }
 ?>
