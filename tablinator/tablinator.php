@@ -70,11 +70,16 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
     global $conn;
     global $searchVal;
     global $autofocus;
+    global $errors;
 
     //page count / result count
     $sql = "SELECT COUNT(*) AS COUNT FROM $tableName $whereLike";
     if (!validate($sql)) return;
     $result = $conn->query($sql);
+    if (!$result){
+        fatalError();
+        return;
+    }
     $resultCount = $result->fetch_assoc()["COUNT"];
     $maxPages = ceil(intval($resultCount) / $numPerPage);
 
@@ -116,6 +121,10 @@ function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage,
     $sql = "SELECT $columns FROM $tableName $whereLike $orderBy $limit;";
     if (!validate($sql)) return;
     $result = $conn->query($sql);
+    if (!$result){
+        fatalError();
+        return;
+    }
     echo "<div class='wrapper'>";
 
     echo "<div class='is-flex is-justify-content-space-around'>";
@@ -175,5 +184,12 @@ function validate($str){
         if(strripos($str, $listOfBadWords[$i])) return false;
     }
     return true;
+}
+function fatalError(){
+    echo "vaše syntaxe je nějáká divná";
+    echo "<br>";
+    echo "check conn.php";
+    echo "<br>";
+    echo "or table / columns data";
 }
 ?>
