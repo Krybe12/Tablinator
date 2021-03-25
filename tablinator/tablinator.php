@@ -1,62 +1,63 @@
 <?php
 require 'conn.php';
 $errors = [];
-if (isset($_GET["table"]) and isset($_GET["col"])){
-    //default values
-    $orderBy = "";
-    $ascdesc = "";
-    $numPerPage = 10; //js variables have prio
-    $currentPage = 1;
-    $tableClass = ["table", "is-fullwidth", "has-text-centered"];
-    $whereLike = "";
-    //over
-    $tableName = $_GET["table"];
-    $listOfCol = explode(",", $_GET["col"]);
-    if(isset($_GET["search"]) and strlen($_GET["search"]) > 0){
-        $search = $_GET["search"];
-        $searchArr = explode(",", $search);
-        if ($searchArr[0] == "true"){
-            $autofocus = "focus";
-        } else {
-            $autofocus = "";
-        } 
-        $searchVal = $searchArr[1];
+if (!isset($_GET["table"]) or !isset($_GET["col"])) return;
+//default values
+$orderBy = "";
+$ascdesc = "";
+$numPerPage = 10; //js variables have prio
+$currentPage = 1;
+$tableClass = ["table", "is-fullwidth", "has-text-centered"];
+$whereLike = "";
+
+//table values
+$tableName = $_GET["table"];
+$listOfCol = explode(",", $_GET["col"]);
+
+if(isset($_GET["search"]) and strlen($_GET["search"]) > 0){
+    $search = $_GET["search"];
+    $searchArr = explode(",", $search);
+    if ($searchArr[0] == "true"){
+        $autofocus = "focus";
+    } else {
+        $autofocus = "";
+    } 
+    $searchVal = $searchArr[1];
+    $searchStr = "%" .$searchVal . "%";
+    for ($i = 0; $i < count($listOfCol); $i++){
+        $whereLike = $whereLike . " " . $listOfCol[$i] . " " . "LIKE " .  "'" . $searchStr . "'" . " OR";
     }
-    if (strlen($searchVal) > 0){
-        $searchStr = "%" .$searchVal . "%";
-        $whereLike = "";
-        for ($i = 0; $i < count($listOfCol); $i++){
-            $whereLike = $whereLike . " " . $listOfCol[$i] . " " . "LIKE " .  "'" . $searchStr . "'" . " OR";
+    $whereLike = "WHERE " . $whereLike;
+    $whereLike = substr($whereLike, 0, -3);
+}
+
+if(isset($_GET["perPage"]) and isset($_GET["currentPage"])){
+    if (is_numeric($_GET["perPage"]) and is_numeric($_GET["currentPage"])){
+        $numPerPage = $_GET["perPage"];
+        $currentPage = $_GET["currentPage"];
+    } else {
+        array_push($errors, "wrong paging format");
+    }
+}
+
+if(isset($_GET["sort"]) and strlen($_GET["sort"]) > 3){
+    $sortStr = $_GET["sort"];
+    $sortArr = explode(",", $sortStr);
+    $orderBy = $sortArr[0];
+    $ascdesc = $sortArr[1];
+    if (in_array($orderBy, $listOfCol)) {
+        if (strtoupper($ascdesc) == "ASC" or strtoupper($ascdesc) == "DESC"){
+            $orderBy = "ORDER BY $orderBy $ascdesc";
         }
-        $whereLike = "WHERE " . $whereLike;
-        $whereLike = substr($whereLike, 0, -3);
+    } else {
+        $orderBy = "";
+        array_push($errors, "wrong sorting format");
     }
-    if(isset($_GET["perPage"]) and isset($_GET["currentPage"])){
-        if (is_numeric($_GET["perPage"]) and is_numeric($_GET["currentPage"])){
-            $numPerPage = $_GET["perPage"];
-            $currentPage = $_GET["currentPage"];
-        } else {
-            array_push($errors, "wrong paging format");
-        }
-    }
-    if(isset($_GET["sort"]) and strlen($_GET["sort"]) > 3){
-        $sortStr = $_GET["sort"];
-        $sortArr = explode(",", $sortStr);
-        $orderBy = $sortArr[0];
-        $ascdesc = $sortArr[1];
-        if (in_array($orderBy, $listOfCol)) {
-            if (strtoupper($ascdesc) == "ASC" or strtoupper($ascdesc) == "DESC"){
-                $orderBy = "ORDER BY $orderBy $ascdesc";
-            }
-        } else {
-            $orderBy = "";
-            array_push($errors, "wrong sorting format");
-        }
-    }
-    tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike);
-    if (count($errors) > 0){
-        var_dump($errors);
-    }
+}
+
+tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike);
+if (count($errors) > 0){
+    var_dump($errors);
 }
 
 function tablinator($tableName, $listOfCol, $orderBy, $numPerPage, $currentPage, $tableClass, $whereLike){
